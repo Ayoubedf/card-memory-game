@@ -1,6 +1,6 @@
 # card-memory-game
 
-![site-preview-image](previews/card-memory-game-site-preview.png)
+![site-preview-image](previews/card-memory-game.png)
 
 ## Game Rules
 
