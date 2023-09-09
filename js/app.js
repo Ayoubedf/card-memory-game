@@ -1,14 +1,29 @@
-const container = document.querySelector('.container');
+const game = document.querySelector('.game');
+const container = document.querySelector('.cards-container');
+const controlPanel = document.querySelector('.control-panel');
 const loadingSection = document.querySelector('.load');
-const gameover = getComputedStyle(container, '::after');
 const options = document.querySelectorAll('.option');
 const timer = document.querySelector('.timer > .time');
 const turnCounter = document.querySelector('.turn-count > .turn');
-let turns = 0;
 const matchCounter = document.querySelector('.match-count > .match');
-const time = 1 * 60 + 0;
-let remainingTime = time;
+const tbody = document.querySelector('#highscore tbody');
+let time = 1 * 30 + 0;
 const id = infiniteNumbers();
+let size;
+
+let scores = localStorage.getItem('scores')
+	? JSON.parse(localStorage.getItem('scores'))
+	: {
+			'4*4': [],
+			'4*5': [],
+			'4*6': [],
+			'5*6': [],
+			'6*6': [],
+	  };
+scores[container.dataset.size] = scores[container.dataset.size].sort(
+	(c, n) => c.tries + c.time / 10 - (n.tries + n.time / 10),
+);
+
 const icons = [
 	{
 		icon: 'devicon-html5-plain colored',
@@ -101,8 +116,6 @@ const icons = [
 		id: id.next().value,
 	},
 ];
-let array = [];
-let matches = [];
 
 onload = () => {
 	loadingSection.style.display = 'none';
@@ -110,9 +123,79 @@ onload = () => {
 
 options.forEach((option) => {
 	option.addEventListener('click', () => {
-		start(option.dataset.number, true);
+		if (!option.classList.contains('active')) {
+			switch (option.dataset.size) {
+				case '4*4':
+					time = 30;
+					break;
+				case '4*5':
+					time = 50;
+					break;
+				case '4*6':
+					time = 60;
+					break;
+				case '5*6':
+					time = 60 + 30;
+					break;
+				case '6*6':
+					time = 2 * 60;
+					break;
+			}
+			timer.textContent = '00:00';
+
+			data = {
+				arrange: [],
+				match: [],
+				tries: 0,
+				time: time,
+			};
+			options.forEach((option) => {
+				option.classList.remove('active');
+			});
+			option.classList.add('active');
+			container.setAttribute('data-size', option.dataset.size);
+		}
 	});
 });
+
+function showHighscores() {
+	const p = document.querySelector('#highscore p');
+	const table = document.querySelector('#highscore table');
+	p.style.display = 'none';
+	table.style.display = 'revert';
+	const highscores = document.querySelector('#highscore');
+	highscores.style.display = 'block';
+	tbody.innerHTML = '';
+	if (scores[container.dataset.size].length) {
+		for (let i = 0; i < scores[container.dataset.size].length; i++) {
+			if (i === 10) {
+				break;
+			}
+			const ordinal = ['st', 'nd', 'rd'];
+			const user = scores[container.dataset.size][i];
+			const tr = document.createElement('tr');
+			const position = document.createElement('td');
+			position.textContent = ordinal[i] ? i + 1 + ordinal[i] : i + 1 + 'th';
+			const name = document.createElement('td');
+			name.textContent = user.name;
+			const tries = document.createElement('td');
+			tries.textContent = user.tries;
+			const time = document.createElement('td');
+			time.textContent = user.time;
+			tr.appendChild(position);
+			tr.appendChild(name);
+			tr.appendChild(tries);
+			tr.appendChild(time);
+			tbody.appendChild(tr);
+		}
+	} else {
+		const table = document.querySelector('#highscore table');
+		const p = document.querySelector('#highscore p');
+		table.style.display = 'none';
+		p.style.display = 'revert';
+	}
+}
+
 function* infiniteNumbers() {
 	n = 0;
 	while (true) {
@@ -120,41 +203,37 @@ function* infiniteNumbers() {
 	}
 }
 
-start();
-function start(cardsNumber = '4*4', restart) {
-	createCards(cardsNumber);
+let array = [];
+let data = {
+	arrange: [],
+	match: [],
+	tries: 0,
+	time: time,
+};
+let count;
+
+function start() {
+	game.style.display = 'grid';
+	controlPanel.style.display = 'none';
+	createCards(container.dataset.size);
 	const cards = document.querySelectorAll('.card');
-	if (restart) {
-		remainingTime = time;
-		turns = 0;
-		turnCounter.textContent = turns;
-		matches = [];
-		matchCounter.textContent = matches.length;
-		array = [];
-	}
-	if (!turns) {
-		cards.forEach((card) => card.classList.add('turn'));
-		setTimeout(() => {
-			cards.forEach((card) => card.classList.remove('turn'));
-			container.style.pointerEvents = 'auto';
-		}, 1000);
-	}
-	const count = setInterval(() => {
+	showcards(data);
+	showHighscores();
+
+	count = setInterval(() => {
+		data.time--;
 		const min =
-			remainingTime / 60 < 10
-				? `0${Math.floor(remainingTime / 60)}`
-				: Math.floor(remainingTime / 60);
-		const sec =
-			remainingTime % 60 < 10 ? `0${remainingTime % 60}` : remainingTime % 60;
+			data.time / 60 < 10
+				? `0${Math.floor(data.time / 60)}`
+				: Math.floor(data.time / 60);
+		const sec = data.time % 60 < 10 ? `0${data.time % 60}` : data.time % 60;
 		timer.textContent = `${min}:${sec}`;
 
-		if (remainingTime <= 0) {
+		if (data.time <= 0) {
 			clearInterval(count);
 			container.style.setProperty('--content', `'you lose'`);
 			container.style.setProperty('--scale', 1);
 			container.style.pointerEvents = 'none';
-		} else {
-			remainingTime--;
 		}
 	}, 1000);
 	cards.forEach((card, index) => {
@@ -172,7 +251,7 @@ function start(cardsNumber = '4*4', restart) {
 					container.style.pointerEvents = 'none';
 					card.classList.add('turn');
 					array.push(target);
-					turnCounter.textContent = ++turns;
+					turnCounter.textContent = ++data.tries;
 					if (card.dataset.id != array[0].id) {
 						if (card.dataset.type != array[0].type) {
 							setTimeout(() => {
@@ -185,22 +264,42 @@ function start(cardsNumber = '4*4', restart) {
 							}, 500);
 						} else {
 							array = [];
-							matches.push(card.dataset.type);
-							matchCounter.textContent = matches.length;
+							data.match.push(+card.dataset.type);
+							matchCounter.textContent = data.match.length;
 							cards.forEach((e) => {
 								if (card.dataset.type == e.dataset.type) {
 									e.classList.add('matched');
-									if (matches.length === cards.length / 2) {
-										container.style.setProperty(
-											'--content',
-											`'you scored: ${time - remainingTime++}sec with ${turns}turn'`,
-										);
-										container.style.setProperty('--scale', 1);
-										container.style.pointerEvents = 'none';
-										clearInterval(count);
-									}
 								}
 							});
+							if (data.match.length === cards.length / 2) {
+								container.style.setProperty(
+									'--content',
+									`'you scored: ${time - data.time}sec with ${data.tries}turn'`,
+								);
+								const userName = prompt('enter your nickname');
+								const score = {
+									name: userName ? userName : 'guest',
+									tries: data.tries,
+									time: time - data.time,
+								};
+								let already = false;
+								for (const el of scores[container.dataset.size]) {
+									if (score.name === el.name) {
+										if (score.tries + score.time / 10 < el.tries + el.time / 10) {
+											el.tries = score.tries;
+											el.time = score.time;
+										}
+										already = true;
+									}
+								}
+								if (!already) {
+									scores[container.dataset.size].push(score);
+								}
+								localStorage.setItem('scores', JSON.stringify(scores));
+								container.style.setProperty('--scale', 1);
+								container.style.pointerEvents = 'none';
+								clearInterval(count);
+							}
 						}
 					}
 					container.style.pointerEvents = 'auto';
@@ -213,8 +312,36 @@ function start(cardsNumber = '4*4', restart) {
 			clearInterval(count);
 		});
 	});
-}
 
+	function showcards(data) {
+		if (!data.tries) {
+			cards.forEach((card) => card.classList.add('turn'));
+			setTimeout(() => {
+				cards.forEach((card) => {
+					card.classList.remove('turn');
+				});
+				container.style.pointerEvents = 'auto';
+			}, 1000);
+		}
+	}
+}
+function stop() {
+	const highscores = document.querySelector('#highscore');
+	highscores.style.display = 'none';
+	clearInterval(count);
+	array = [];
+	data = {
+		arrange: [],
+		match: [],
+		tries: 0,
+		time: time,
+	};
+	matchCounter.textContent = data.match.length;
+	turnCounter.textContent = data.tries;
+	timer.textContent = '00:00';
+	controlPanel.style.display = 'flex';
+	game.style.display = 'none';
+}
 function createCards(cardsNumber) {
 	container.innerHTML = '';
 	const rows = cardsNumber.split('*')[0];
@@ -222,9 +349,9 @@ function createCards(cardsNumber) {
 	container.style.cssText = `grid-template: repeat(${rows}, 1fr) / repeat(${cols}, 1fr);`;
 	let j = 0;
 	for (let i = 0; i < rows * cols; i++) {
-		let iconClass = icons[j].icon;
-		let iconColor = icons[j].color;
-		let iconType = icons[j].id;
+		const iconClass = icons[j].icon;
+		const iconColor = icons[j].color;
+		const iconType = icons[j].id;
 		if (i % 2) {
 			j++;
 		}
@@ -234,7 +361,7 @@ function createCards(cardsNumber) {
 		const backFace = document.createElement('div');
 		card.setAttribute('data-type', iconType);
 		card.setAttribute('data-id', infiniteNumbers().next().value);
-		card.style.order = Math.round(Math.random() * 100);
+
 		frontFace.className = 'front-face face';
 		iconClass.includes('colored') ? '' : (icon.style.color = iconColor);
 		icon.className = `${iconClass}`;
@@ -244,5 +371,15 @@ function createCards(cardsNumber) {
 		card.appendChild(backFace);
 		card.className = 'card';
 		container.appendChild(card);
+
+		let order = Math.round(Math.random() * 1000);
+		card.style.order = order;
+		data.arrange.push(order);
+
+		for (const type of data.match) {
+			if (card.dataset.type == type) {
+				card.classList.add('matched');
+			}
+		}
 	}
 }

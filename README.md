@@ -1,6 +1,8 @@
 # card-memory-game
 
-![site-preview-image](previews/card-memory-game.png)
+![site-preview-image](previews/opening_panel.png)
+![site-preview-image](previews/main_game.png)
+![site-preview-image](previews/highscores.png)
 
 ## Game Rules
 
