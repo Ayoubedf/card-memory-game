@@ -7,6 +7,7 @@ const timer = document.querySelector('.timer > .time');
 const turnCounter = document.querySelector('.turn-count > .turn');
 const matchCounter = document.querySelector('.match-count > .match');
 const tbody = document.querySelector('#highscore tbody');
+const scoreElement = document.querySelector('.score');
 let time = 1 * 30 + 0;
 const id = infiniteNumbers();
 let size;
@@ -20,9 +21,6 @@ let scores = localStorage.getItem('scores')
 			'5*6': [],
 			'6*6': [],
 	  };
-scores[container.dataset.size] = scores[container.dataset.size].sort(
-	(c, n) => c.tries + c.time / 10 - (n.tries + n.time / 10),
-);
 
 const icons = [
 	{
@@ -159,6 +157,9 @@ options.forEach((option) => {
 });
 
 function showHighscores() {
+	scores[container.dataset.size] = scores[container.dataset.size].sort(
+		(c, n) => c.tries + c.time / 10 - (n.tries + n.time / 10),
+	);
 	const p = document.querySelector('#highscore p');
 	const table = document.querySelector('#highscore table');
 	p.style.display = 'none';
@@ -231,8 +232,8 @@ function start() {
 
 		if (data.time <= 0) {
 			clearInterval(count);
-			container.style.setProperty('--content', `'you lose'`);
-			container.style.setProperty('--scale', 1);
+			scoreElement.textContent = 'you lose';
+			scoreElement.style.setProperty('--scale', 1);
 			container.style.pointerEvents = 'none';
 		}
 	}, 1000);
@@ -272,33 +273,37 @@ function start() {
 								}
 							});
 							if (data.match.length === cards.length / 2) {
-								container.style.setProperty(
-									'--content',
-									`'you scored: ${time - data.time}sec with ${data.tries}turn'`,
-								);
-								const userName = prompt('enter your nickname');
-								const score = {
-									name: userName ? userName : 'guest',
-									tries: data.tries,
-									time: time - data.time,
-								};
-								let already = false;
-								for (const el of scores[container.dataset.size]) {
-									if (score.name === el.name) {
-										if (score.tries + score.time / 10 < el.tries + el.time / 10) {
-											el.tries = score.tries;
-											el.time = score.time;
+								scoreElement.textContent = `you scored: ${time - data.time}sec with ${
+									data.tries
+								}turn`;
+								new Promise((resolve) => {
+									resolve(prompt('enter your nickname'));
+								})
+									.then((resolve) => {
+										const score = {
+											name: resolve ? resolve : 'guest',
+											tries: data.tries,
+											time: time - data.time,
+										};
+										let already = false;
+										for (const el of scores[container.dataset.size]) {
+											if (score.name === el.name) {
+												if (score.tries + score.time / 10 < el.tries + el.time / 10) {
+													el.tries = score.tries;
+													el.time = score.time;
+												}
+												already = true;
+											}
 										}
-										already = true;
-									}
-								}
-								if (!already) {
-									scores[container.dataset.size].push(score);
-								}
-								localStorage.setItem('scores', JSON.stringify(scores));
-								container.style.setProperty('--scale', 1);
-								container.style.pointerEvents = 'none';
-								clearInterval(count);
+										if (!already) {
+											scores[container.dataset.size].push(score);
+										}
+										localStorage.setItem('scores', JSON.stringify(scores));
+										scoreElement.style.setProperty('--scale', 1);
+										container.style.pointerEvents = 'none';
+										clearInterval(count);
+									})
+									.then(showHighscores);
 							}
 						}
 					}
@@ -341,6 +346,7 @@ function stop() {
 	timer.textContent = '00:00';
 	controlPanel.style.display = 'flex';
 	game.style.display = 'none';
+	scoreElement.style.setProperty('--scale', 0);
 }
 function createCards(cardsNumber) {
 	container.innerHTML = '';

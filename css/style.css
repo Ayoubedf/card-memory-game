@@ -25,7 +25,6 @@ body {
 	min-height: 100vh;
 	min-height: 100svh;
 }
-
 .stats-container {
 	display: flex;
 	justify-content: space-between;
@@ -33,11 +32,12 @@ body {
 	width: 100%;
 	padding-inline: 0.75rem;
 	height: 4.25rem;
+	font-size: 0.75em;
 }
 .timer,
 .match-count,
 .turn-count {
-	font-size: clamp(1.25em, 3vw, 2.5em);
+	font-size: clamp(1.25em, 2.5vmax, 2.5em);
 }
 
 main {
@@ -49,7 +49,6 @@ main {
 	flex-direction: column-reverse;
 	gap: 0.5rem;
 }
-
 .control-panel {
 	position: absolute;
 	top: 50%;
@@ -141,7 +140,7 @@ main {
 	height: 85vmin;
 }
 
-.cards-container::after {
+/* .cards-container::after {
 	content: var(--content, '');
 	position: absolute;
 	top: 50%;
@@ -158,6 +157,24 @@ main {
 	max-width: max-content;
 	box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 12px;
 	text-align: center;
+} */
+.score {
+	position: absolute;
+	top: calc(50% - (1.75em - 1.15em * 1.35 - 0.5em) / 2);
+	left: 50%;
+	z-index: 100;
+	font-size: clamp(1.5em, 3vmin, 2em);
+	background: aliceblue;
+	border: 0.12em solid #333333;
+	padding: 0.3em 0.6em;
+	transform: translate(-50%, -50%) scale(var(--scale, 0));
+	transition: transform 0.3s;
+	width: fit-content;
+	max-width: 25%;
+	box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 12px;
+	text-align: center;
+	scale: var(--scale, 0);
+	border-radius: 1rem;
 }
 
 .game {
@@ -262,7 +279,7 @@ main {
 	font-family: 'Rubik', sans-serif;
 }
 .highscore thead tr {
-	background-color: hsla(218, 25%, 25%, 0.95);
+	background-color: hsla(218, 25%, 35%, 0.95);
 	color: #fff;
 	text-transform: uppercase;
 }
@@ -277,7 +294,7 @@ main {
 	background-color: #f3f3f380;
 }
 .highscore tbody tr:last-of-type {
-	border-bottom: 2px solid hsla(218, 25%, 25%, 0.5);
+	border-bottom: 2px solid hsla(218, 25%, 35%, 0.5);
 }
 
 @keyframes rotation {
@@ -297,7 +314,8 @@ main {
 	.option.active {
 		cursor: auto;
 	}
-	.btn:not(.active):hover {
+	.btn:not(.active, button):hover {
 		background-color: #ddddddd7;
+		color: #333;
 	}
 }
