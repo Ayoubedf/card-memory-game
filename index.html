@@ -20,6 +20,11 @@
 			rel="stylesheet"
 			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
 		/>
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css"
+		/>
+
 		<title>Card Memory Game</title>
 		<link
 			rel="shortcut icon"
@@ -30,107 +35,23 @@
 		<script defer src="js/app.js"></script>
 	</head>
 	<body>
-		<h2 class="timer">timer: <span class="time">00:00</span></h2>
-		<h2 class="turn-count">turns: <span class="turn">00</span></h2>
-		<h2 class="match-count">matched: <span class="match">00</span></h2>
-		<div class="gameover"></div>
-		<div class="container">
-			<div class="card">
-				<div class="front-face face">
-					<i class="fa fa-html5"></i>
+		<section class="load"><span class="loader"></span></section>
+		<section class="content">
+			<header class="header">
+				<h2 class="match-count">matched: <span class="match">00</span></h2>
+				<h2 class="turn-count">turns: <span class="turn">00</span></h2>
+				<h2 class="timer">timer: <span class="time">00:00</span></h2>
+			</header>
+			<main>
+				<div class="options">
+					<button class="option" data-number="4*4">4×4</button>
+					<button class="option" data-number="4*5">4×5</button>
+					<button class="option" data-number="4*6">4×6</button>
+					<button class="option" data-number="5*6">5×6</button>
+					<button class="option" data-number="6*6">6×6</button>
 				</div>
-				<div class="back-face face"></div>
-			</div>
-			<div class="card">
-				<div class="front-face face">
-					<i class="fa fa-html5"></i>
-				</div>
-				<div class="back-face face"></div>
-			</div>
-			<div class="card">
-				<div class="front-face face">
-					<i class="fa fa-css3"></i>
-				</div>
-				<div class="back-face face"></div>
-			</div>
-			<div class="card">
-				<div class="front-face face">
-					<i class="fa fa-css3"></i>
-				</div>
-				<div class="back-face face"></div>
-			</div>
-			<div class="card">
-				<div class="front-face face">
-					<i class="fa-brands fa-js"></i>
-				</div>
-				<div class="back-face face"></div>
-			</div>
-			<div class="card">
-				<div class="front-face face">
-					<i class="fa-brands fa-js"></i>
-				</div>
-				<div class="back-face face"></div>
-			</div>
-			<div class="card">
-				<div class="front-face face">
-					<i class="fa-brands fa-vuejs"></i>
-				</div>
-				<div class="back-face face"></div>
-			</div>
-			<div class="card">
-				<div class="front-face face">
-					<i class="fa-brands fa-vuejs"></i>
-				</div>
-				<div class="back-face face"></div>
-			</div>
-			<div class="card">
-				<div class="front-face face">
-					<i class="fa-brands fa-php"></i>
-				</div>
-				<div class="back-face face"></div>
-			</div>
-			<div class="card">
-				<div class="front-face face">
-					<i class="fa-brands fa-php"></i>
-				</div>
-				<div class="back-face face"></div>
-			</div>
-			<div class="card">
-				<div class="front-face face">
-					<i class="fa-brands fa-python"></i>
-				</div>
-				<div class="back-face face"></div>
-			</div>
-			<div class="card">
-				<div class="front-face face">
-					<i class="fa-brands fa-python"></i>
-				</div>
-				<div class="back-face face"></div>
-			</div>
-			<div class="card">
-				<div class="front-face face">
-					<i class="fa-brands fa-react"></i>
-				</div>
-				<div class="back-face face"></div>
-			</div>
-			<div class="card">
-				<div class="front-face face">
-					<i class="fa-brands fa-react"></i>
-				</div>
-				<div class="back-face face"></div>
-			</div>
-			<div class="card">
-				<div class="front-face face">
-					<i class="fa-brands fa-angular"></i>
-				</div>
-				<div class="back-face face"></div>
-			</div>
-			<div class="card">
-				<div class="front-face face">
-					<i class="fa-brands fa-angular"></i>
-				</div>
-				<div class="back-face face"></div>
-			</div>
-		</div>
+				<div class="container"></div>
+			</main>
+		</section>
 	</body>
 </html>
