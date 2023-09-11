@@ -9,109 +9,106 @@ const matchCounter = document.querySelector('.match-count > .match');
 const tbody = document.querySelector('#highscore tbody');
 const scoreElement = document.querySelector('.score');
 let time = 1 * 30 + 0;
-const id = infiniteNumbers();
 let size;
 
-let scores = localStorage.getItem('scores')
-	? JSON.parse(localStorage.getItem('scores'))
-	: {
-			'4*4': [],
-			'4*5': [],
-			'4*6': [],
-			'5*6': [],
-			'6*6': [],
-	  };
+let scores = JSON.parse(localStorage.getItem('scores')) || {
+	'4*4': [],
+	'4*5': [],
+	'4*6': [],
+	'5*6': [],
+	'6*6': [],
+};
 
 const icons = [
 	{
 		icon: 'devicon-html5-plain colored',
 		color: 'orangered',
-		id: id.next().value,
+		id: 0,
 	},
 	{
 		icon: 'devicon-css3-plain colored',
 		color: 'blue',
-		id: id.next().value,
+		id: 1,
 	},
 	{
 		icon: 'devicon-javascript-plain colored',
 		color: 'orange',
-		id: id.next().value,
+		id: 2,
 	},
 	{
 		icon: 'devicon-vuejs-plain colored',
 		color: '#47BA87',
-		id: id.next().value,
+		id: 3,
 	},
 	{
 		icon: 'devicon-react-original colored',
 		color: '#61DBFB',
-		id: id.next().value,
+		id: 4,
 	},
 	{
 		icon: 'devicon-angularjs-plain colored',
 		color: '#DD0031',
-		id: id.next().value,
+		id: 5,
 	},
 	{
 		icon: 'devicon-php-plain colored',
 		color: 'gray',
-		id: id.next().value,
+		id: 6,
 	},
 	{
 		icon: 'devicon-python-plain',
 		color: '#ffbf00',
-		id: id.next().value,
+		id: 7,
 	},
 	{
 		icon: 'devicon-java-plain',
 		color: '#0074BD',
-		id: id.next().value,
+		id: 8,
 	},
 	{
 		icon: 'devicon-sass-original colored',
 		color: '#DD0031',
-		id: id.next().value,
+		id: 9,
 	},
 	{
 		icon: 'devicon-c-plain colored',
 		color: 'orangered',
-		id: id.next().value,
+		id: 10,
 	},
 	{
 		icon: 'devicon-cplusplus-plain colored',
 		color: 'blue',
-		id: id.next().value,
+		id: 11,
 	},
 	{
 		icon: 'devicon-csharp-plain',
 		color: '#a73cdd',
-		id: id.next().value,
+		id: 12,
 	},
 	{
 		icon: 'devicon-tailwindcss-plain colored',
 		color: '#47BA87',
-		id: id.next().value,
+		id: 13,
 	},
 	{
 		icon: 'devicon-docker-plain colored',
 		color: 'gray',
-		id: id.next().value,
+		id: 14,
 	},
 	{
 		icon: 'devicon-bootstrap-plain',
 		color: '#6346b9',
-		id: id.next().value,
+		id: 15,
 	},
 	{
 		icon: 'devicon-dart-plain colored',
 		color: '#61DBFB',
-		id: id.next().value,
+		id: 16,
 	},
 	{
 		icon: 'devicon-ruby-plain colored',
 		color: '#DD0031',
-		id: id.next().value,
+		id: 17,
 	},
 ];
 
@@ -133,7 +130,7 @@ options.forEach((option) => {
 					time = 60;
 					break;
 				case '5*6':
-					time = 60 + 30;
+					time = 60 + 45;
 					break;
 				case '6*6':
 					time = 2 * 60;
@@ -141,7 +138,7 @@ options.forEach((option) => {
 			}
 			timer.textContent = '00:00';
 
-			data = {
+			gameState = {
 				arrange: [],
 				match: [],
 				tries: 0,
@@ -197,15 +194,8 @@ function showHighscores() {
 	}
 }
 
-function* infiniteNumbers() {
-	n = 0;
-	while (true) {
-		yield n++;
-	}
-}
-
 let array = [];
-let data = {
+let gameState = {
 	arrange: [],
 	match: [],
 	tries: 0,
@@ -218,19 +208,20 @@ function start() {
 	controlPanel.style.display = 'none';
 	createCards(container.dataset.size);
 	const cards = document.querySelectorAll('.card');
-	showcards(data);
+	showcards(gameState);
 	showHighscores();
 
 	count = setInterval(() => {
-		data.time--;
+		gameState.time--;
 		const min =
-			data.time / 60 < 10
-				? `0${Math.floor(data.time / 60)}`
-				: Math.floor(data.time / 60);
-		const sec = data.time % 60 < 10 ? `0${data.time % 60}` : data.time % 60;
+			gameState.time / 60 < 10
+				? `0${Math.floor(gameState.time / 60)}`
+				: Math.floor(gameState.time / 60);
+		const sec =
+			gameState.time % 60 < 10 ? `0${gameState.time % 60}` : gameState.time % 60;
 		timer.textContent = `${min}:${sec}`;
 
-		if (data.time <= 0) {
+		if (gameState.time <= 0) {
 			clearInterval(count);
 			scoreElement.textContent = 'you lose';
 			scoreElement.style.setProperty('--scale', 1);
@@ -252,7 +243,7 @@ function start() {
 					container.style.pointerEvents = 'none';
 					card.classList.add('turn');
 					array.push(target);
-					turnCounter.textContent = ++data.tries;
+					turnCounter.textContent = ++gameState.tries;
 					if (card.dataset.id != array[0].id) {
 						if (card.dataset.type != array[0].type) {
 							setTimeout(() => {
@@ -265,45 +256,72 @@ function start() {
 							}, 500);
 						} else {
 							array = [];
-							data.match.push(+card.dataset.type);
-							matchCounter.textContent = data.match.length;
+							gameState.match.push(+card.dataset.type);
+							matchCounter.textContent = gameState.match.length;
 							cards.forEach((e) => {
 								if (card.dataset.type == e.dataset.type) {
 									e.classList.add('matched');
 								}
 							});
-							if (data.match.length === cards.length / 2) {
-								scoreElement.textContent = `you scored: ${time - data.time}sec with ${
-									data.tries
+							if (gameState.match.length === cards.length / 2) {
+								scoreElement.textContent = `you scored ${time - gameState.time}sec with ${
+									gameState.tries
 								}turn`;
-								new Promise((resolve) => {
-									resolve(prompt('enter your nickname'));
-								})
-									.then((resolve) => {
-										const score = {
-											name: resolve ? resolve : 'guest',
-											tries: data.tries,
-											time: time - data.time,
-										};
-										let already = false;
-										for (const el of scores[container.dataset.size]) {
-											if (score.name === el.name) {
-												if (score.tries + score.time / 10 < el.tries + el.time / 10) {
-													el.tries = score.tries;
-													el.time = score.time;
-												}
-												already = true;
+								scoreElement.style.setProperty('--scale', 1);
+								container.style.pointerEvents = 'none';
+								clearInterval(count);
+								const modal = document.querySelector('.modal');
+								modal.addEventListener('keypress', (e) => {
+									if (e.key === 'Enter') {
+										modal_confirm.click();
+									}
+								});
+								async function showModal() {
+									const modal_input = modal.querySelector('.modal_input');
+									const name = modal_input.value;
+									modal_input.value = '';
+									return name;
+								}
+								const modal_confirm = modal.querySelector('.modal_confirm');
+								modal_confirm.onclick = addScore;
+								document.body.addEventListener('click', function (e) {
+									if (e.target === modal) {
+										addScore();
+									}
+								});
+								function addScore() {
+									showModal()
+										.then((name) => {
+											return name;
+										})
+										.then(updateScores);
+									modal.close();
+								}
+								setTimeout(() => {
+									modal.showModal();
+								}, 500);
+								function updateScores(name) {
+									const score = {
+										name: name || 'guest',
+										tries: gameState.tries,
+										time: time - gameState.time,
+									};
+									let already = false;
+									for (const el of scores[container.dataset.size]) {
+										if (score.name === el.name) {
+											if (score.tries + score.time / 10 < el.tries + el.time / 10) {
+												el.tries = score.tries;
+												el.time = score.time;
 											}
+											already = true;
 										}
-										if (!already) {
-											scores[container.dataset.size].push(score);
-										}
-										localStorage.setItem('scores', JSON.stringify(scores));
-										scoreElement.style.setProperty('--scale', 1);
-										container.style.pointerEvents = 'none';
-										clearInterval(count);
-									})
-									.then(showHighscores);
+									}
+									if (!already) {
+										scores[container.dataset.size].push(score);
+									}
+									localStorage.setItem('scores', JSON.stringify(scores));
+									showHighscores();
+								}
 							}
 						}
 					}
@@ -335,14 +353,14 @@ function stop() {
 	highscores.style.display = 'none';
 	clearInterval(count);
 	array = [];
-	data = {
+	gameState = {
 		arrange: [],
 		match: [],
 		tries: 0,
 		time: time,
 	};
-	matchCounter.textContent = data.match.length;
-	turnCounter.textContent = data.tries;
+	matchCounter.textContent = gameState.match.length;
+	turnCounter.textContent = gameState.tries;
 	timer.textContent = '00:00';
 	controlPanel.style.display = 'flex';
 	game.style.display = 'none';
@@ -366,7 +384,7 @@ function createCards(cardsNumber) {
 		const icon = document.createElement('i');
 		const backFace = document.createElement('div');
 		card.setAttribute('data-type', iconType);
-		card.setAttribute('data-id', infiniteNumbers().next().value);
+		card.setAttribute('data-id', i);
 
 		frontFace.className = 'front-face face';
 		iconClass.includes('colored') ? '' : (icon.style.color = iconColor);
@@ -380,9 +398,9 @@ function createCards(cardsNumber) {
 
 		let order = Math.round(Math.random() * 1000);
 		card.style.order = order;
-		data.arrange.push(order);
+		gameState.arrange.push(order);
 
-		for (const type of data.match) {
+		for (const type of gameState.match) {
 			if (card.dataset.type == type) {
 				card.classList.add('matched');
 			}
