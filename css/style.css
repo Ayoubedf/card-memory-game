@@ -320,6 +320,7 @@ main {
 	flex-direction: column;
 	height: 15rem;
 	width: 30rem;
+	max-width: 90vw;
 	padding: 1rem;
 	justify-content: space-evenly;
 	align-items: center;
